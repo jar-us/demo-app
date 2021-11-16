@@ -1,6 +1,10 @@
 import json
 from datetime import datetime as dt
+
 import requests as rq
+
+from commons import json_utility as ju
+from commons import prop_utility as pu
 
 
 # call nse option chain api
@@ -16,8 +20,7 @@ import requests as rq
 # if response is other than 200 then dont create json and return BLOCKED
 def option_chain_data():
     symbol = "NIFTY"
-    date_and_time = dt.now().strftime("%Y-%m-%d-%H-%M")
-    file_name = "json/option-chain-" + symbol + "-" + date_and_time + ".json"
+    json_location = "json/oc-"
     baseurl = "https://www.nseindia.com/"
     url = "https://www.nseindia.com/api/option-chain-indices?symbol=" + symbol
     headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, '
@@ -33,14 +36,17 @@ def option_chain_data():
     if (response.status_code == 200) & (response.text != "") & (response.text != "[]"):
         print("Response is 200 and body is not empty")
         # read timestamp property from demo-app.properties file.
-        time_stamp_prop = dt.strptime(get_property_value("demo_app.properties", "timestamp"), "%d-%b-%Y %H:%M:%S")
-        time_stamp_res = dt.strptime(get_property_value_from_json(response.json(), "timestamp"), "%d-%b-%Y %H:%M:%S")
+        time_stamp_prop = dt.strptime(pu.get_property_value("demo_app.properties", "timestamp"), "%d-%b-%Y %H:%M:%S")
+        time_stamp_res = dt.strptime(ju.get_property_value_from_json(response.json(), "timestamp"), "%d-%b-%Y %H:%M:%S")
 
         if time_stamp_res > time_stamp_prop:
             print("timestamp is greater than timestamp in demo-app.properties file")
+            file_name = json_location + symbol + "-" + str(time_stamp_res.day) + "-" + str(
+                time_stamp_res.month) + "-" + str(time_stamp_res.year) + "-" + str(time_stamp_res.hour) + "-" + str(
+                time_stamp_res.minute) + ".json"
             open(file_name, "x").write(json.dumps(response.json()))
             print("json file created")
-            update_property_value("demo_app.properties", "timestamp", time_stamp_res)
+            pu.update_property_value("demo_app.properties", "timestamp", time_stamp_res)
             print("timestamp updated in demo-app.properties file")
             return "CREATED_" + file_name
         else:
@@ -53,25 +59,3 @@ def option_chain_data():
         print("json file not created")
         return "BLOCKED_NOT_CREATED"
 
-
-# create a function which should take file and property name as input and return property value.
-def get_property_value(file_name, property_name):
-    with open(file_name, 'r') as f:
-        for line in f:
-            if property_name in line:
-                return line.split("=")[1].strip()
-
-
-# # create a function which should take file name and property name and property value as input and update property value.
-def update_property_value(file_name, property_name, property_value):
-    with open(file_name, "r") as f:
-        props = f.readlines()
-        with open(file_name, "w") as f:
-            for p in props:
-                if property_name in p:
-                    f.write(property_name + "=" + property_value.strftime("%d-%b-%Y %H:%M:%S") + "\n")
-
-
-# create a function which should take json object and property name as input and return property value.
-def get_property_value_from_json(json_object, property_name):
-    return json_object['records']['timestamp']

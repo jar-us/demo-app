@@ -45,7 +45,7 @@ def writeJsonToCsv(json_file_name):
     put_underlyingValue = []
 
     date_format = datetime.datetime.now().strftime("%Y-%m-%d")
-    csv_file_name = "csv/" + "option-chain" + "-" + "nifty" + "-" + str(date_format) + ".csv"
+    # csv_file_name = "csv/" + "option-chain" + "-" + "nifty" + "-" + str(date_format) + ".csv"
     json_file_name_split = json_file_name.split("-")
     json_file_name_year = json_file_name_split[3]
     json_file_name_month = json_file_name_split[4]
@@ -166,8 +166,8 @@ def writeJsonToCsv(json_file_name):
         'CE-underlyingValue': call_underlyingValue,
     }
     # check if file exists
-    Path(csv_file_name).touch(exist_ok=True)
+    # Path(csv_file_name).touch(exist_ok=True)
 
-    pd.DataFrame(data1).to_csv(csv_file_name, index=False, mode='a')
+    # pd.DataFrame(data1).to_csv(csv_file_name, index=False, mode='a')
 
-    print(csv_file_name + " updated Successfully")
+    # print(csv_file_name + " updated Successfully")
