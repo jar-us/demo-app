@@ -9,6 +9,6 @@ from clients import csv_client as cc
 if __name__ == "__main__":
     # json_file_status = wc.option_chain_data()
     # print(json_file_status)
-    cc.create_csv("json/oc-NIFTY-16-11-2021-15-30.json")
+    print(cc.create_csv("json/oc-NIFTY-16-11-2021-15-30.json"))
 
     # main()

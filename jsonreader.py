@@ -12,6 +12,7 @@ def writeJsonToCsv(json_file_name):
     chain_time = []
     expiryDates = []
     strikePrices = []
+
     call_openInterests = []
     call_changeInOpenInterests = []
     call_percentageChangeInOpenInterests = []
@@ -44,7 +45,7 @@ def writeJsonToCsv(json_file_name):
     put_askPrice = []
     put_underlyingValue = []
 
-    date_format = datetime.datetime.now().strftime("%Y-%m-%d")
+    # date_format = datetime.datetime.now().strftime("%Y-%m-%d")
     # csv_file_name = "csv/" + "option-chain" + "-" + "nifty" + "-" + str(date_format) + ".csv"
     json_file_name_split = json_file_name.split("-")
     json_file_name_year = json_file_name_split[3]
