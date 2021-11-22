@@ -1,10 +1,8 @@
 import logging
 import os
 from collections.abc import MutableMapping
-
 import coloredlogs
 import pandas as pd
-
 import nsedate as nd
 
 coloredlogs.install(level='DEBUG')
@@ -18,6 +16,8 @@ def create_csv(json_file_name):
     # get list of data from records
     rows = df['records']['data']
 
+    time_stamp_from_option_chain_api = df['records']['timestamp']
+
     # generate csv file name from json file name
     csv_file_name = generate_file_name(json_file_name)
 
@@ -28,20 +28,18 @@ def create_csv(json_file_name):
 
     for row in rows:
         expiryDate = row.get('expiryDate')
-        # if expiryDate is before future_date
         if nd.convertToDateTime(expiryDate) <= future_date:
-            # if file with name csv_file_name does not exist, then create
-            if not os.path.isfile(csv_file_name):
-                logger.warning("File does not exist, creating file=" + csv_file_name)
-                flattened_row = flatten_dict(row)
-                list_of_dicts.append(flattened_row)
-                logger.info("Writing to file=" + csv_file_name)
-                write_to_csv(list_of_dicts, csv_file_name, "w+")
-            else:
-                flattened_row = flatten_dict(row)
-                list_of_dicts.append(flattened_row)
-                logger.info("Updating the csv file=" + csv_file_name)
-                write_to_csv(list_of_dicts, csv_file_name, "a")
+            flattened_row = flatten_dict(row)
+            # add timestamp to flattened row
+            flattened_row['timestamp'] = time_stamp_from_option_chain_api
+            list_of_dicts.append(flattened_row)
+
+    if not os.path.isfile(csv_file_name):
+        logger.warning("File does not exist, creating file=" + csv_file_name)
+        write_to_csv(list_of_dicts, csv_file_name, "w+")
+    else:
+        logger.warning("File exists, appending to file=" + csv_file_name)
+        write_to_csv(list_of_dicts, csv_file_name, "a")
 
 
 def generate_file_name(json_file_name):
